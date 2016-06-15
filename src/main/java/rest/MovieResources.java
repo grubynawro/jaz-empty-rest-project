@@ -1,6 +1,7 @@
 package rest;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
@@ -71,7 +72,7 @@ public class MovieResources {
 		Movie result = db.get(id);
 		if(result==null)
 			Response.status(404).build();
-		db.update(result);
+		db.delete(result);
 		return Response.ok().build();
 	}
 	
@@ -110,12 +111,16 @@ public class MovieResources {
 		Movie result = db.get(movieId);
 		if(result==null)
 			Response.status(404).build();
-		Comment comment = result.getComments().get(commentId);
 		if(result.getComments()==null)
 			Response.status(404).build();
-		if(comment==null)
-			Response.status(404).build();
-		comment = null;
+		Iterator<Comment> itr = result.
+				getComments()
+				.iterator();
+		while(itr.hasNext()){
+			Comment comment = itr.next();
+			if(comment.getId()==commentId)
+				itr.remove();
+		}
 		return Response.ok().build();
 	}
 	
@@ -129,7 +134,16 @@ public class MovieResources {
 			return Response.status(404).build();
 		if(result.getScores()==null)
 			result.setScores(new ArrayList<Score>());
+		if(score.getValue() > 10)
+			score.setValue(10);
+		if(score.getValue() < 0)
+			score.setValue(0);
 		result.getScores().add(score);
+		int sum = 0;
+	      for (int i=0; i< result.getScores().size(); i++) {
+	            sum += result.getScores().get(i).getValue();
+	      }
+	    result.setMainScore(sum/result.getScores().size());
 		return Response.ok().build();
 	}
 	
@@ -137,14 +151,15 @@ public class MovieResources {
 	@GET
 	@Path("/{id}/mainscore")
 	@Produces(MediaType.APPLICATION_JSON)
-	public double getMainScore(@PathParam("id") int id){
+	public Response getMainScore(@PathParam("id") int id){
 		Movie movie = db.get(id);
 		if(movie==null)
 			Response.status(404).build();
-		double result = movie.getMainScore();
+		int result = movie.getMainScore();
 		if(result < 0)
 			Response.status(404).build();
-		return movie.getMainScore();
+		String value = String.valueOf(result);
+		return Response.ok(value).build();
 	}
 	
 }

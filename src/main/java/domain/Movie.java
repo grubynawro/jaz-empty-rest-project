@@ -8,9 +8,9 @@ public class Movie {
 	private String info;
 	private List<Comment> comments;
 	private List<Score> scores;
-	private double mainScore = setMainScore();
+	private int mainScore;//setMainScore();
 	
-	public double getMainScore(){
+	public int getMainScore(){
 		return mainScore;
 	}
 	
@@ -44,11 +44,9 @@ public class Movie {
 	public void setScores(List<Score> scores) {
 		this.scores = scores;
 	}
-	private double setMainScore(){
-		double sum = 0;
-		for (Score d:scores) sum += (double)d.getValue();
-		double average = sum / scores.size();
-		return average;
+
+	public void setMainScore(int mainScore) {
+		this.mainScore = mainScore;
 	}
 	
 }
